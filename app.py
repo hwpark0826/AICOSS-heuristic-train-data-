@@ -106,7 +106,7 @@ with st.container(border=True):
     right.write(f"\U0001F697 \uc8fc\ucc28 \uc870\uac74: **{PARKING_LABELS.get(display(data.get('parking_preference')), 'UNKNOWN')}**")
 
 with st.container(border=True):
-    st.subheader("2. \uc0b4\ud3b4\ubcf4\ub2e4 \uc810\ud3ec")
+    st.subheader("2. \ud3c9\uac00\ud560 \uc810\ud3ec")
     st.markdown(f"### {display(data.get('store_name'))}")
     st.caption(f"{display(data.get('category_group'))} \u00b7 {display(data.get('category_main'))} \u00b7 {display(data.get('category_sub'))}")
     st.write(f"\ub300\ud45c \uc815\ubcf4: **{display(data.get('representative_item'))}** \u00b7 \ub300\ud45c \uac00\uaca9 **{display(data.get('representative_price_krw'))}\uc6d0**")
