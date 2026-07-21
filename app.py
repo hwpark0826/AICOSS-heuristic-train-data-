@@ -99,11 +99,11 @@ with st.container(border=True):
     st.write(f"**{display(data.get('day_of_week'))}\uc694\uc77c {display(data.get('visit_time'))}**, **{profile}{companion}** \uc0c1\ud669\uc785\ub2c8\ub2e4.")
     left, right = st.columns(2)
     left.write(f"\u23f1\ufe0f \ub0a8\uc740 \uc2dc\uac04: **{TIME_LABELS.get(display(data.get('available_time_code')), 'UNKNOWN')}**")
-    right.write(f"\ud83d\udcb3 \uc608\uc0b0: **{BUDGET_LABELS.get(display(data.get('budget_code')), 'UNKNOWN')}**")
-    left.write(f"\ud83c\udfaf \ub2e4\uc74c \ud65c\ub3d9: **{PURPOSE_LABELS.get(display(data.get('purpose_code')), 'UNKNOWN')}**")
-    right.write(f"\ud83c\udf3f \uc6d0\ud558\ub294 \ubd84\uc704\uae30: **{ATMOSPHERE_LABELS.get(display(data.get('atmosphere_code')), 'UNKNOWN')}**")
-    left.write(f"\ud83e\udea8 \uc774\ub3d9 \uc870\uac74: **{HILL_LABELS.get(display(data.get('hill_preference')), 'UNKNOWN')}**")
-    right.write(f"\ud83d\ude97 \uc8fc\ucc28 \uc870\uac74: **{PARKING_LABELS.get(display(data.get('parking_preference')), 'UNKNOWN')}**")
+    right.write(f"\U0001F4B3 \uc608\uc0b0: **{BUDGET_LABELS.get(display(data.get('budget_code')), 'UNKNOWN')}**")
+    left.write(f"\U0001F3AF \ub2e4\uc74c \ud65c\ub3d9: **{PURPOSE_LABELS.get(display(data.get('purpose_code')), 'UNKNOWN')}**")
+    right.write(f"\U0001F33F \uc6d0\ud558\ub294 \ubd84\uc704\uae30: **{ATMOSPHERE_LABELS.get(display(data.get('atmosphere_code')), 'UNKNOWN')}**")
+    left.write(f"\U0001FAA8 \uc774\ub3d9 \uc870\uac74: **{HILL_LABELS.get(display(data.get('hill_preference')), 'UNKNOWN')}**")
+    right.write(f"\U0001F697 \uc8fc\ucc28 \uc870\uac74: **{PARKING_LABELS.get(display(data.get('parking_preference')), 'UNKNOWN')}**")
 
 with st.container(border=True):
     st.subheader("2. \uc0b4\ud3b4\ubcf4\ub2e4 \uc810\ud3ec")
