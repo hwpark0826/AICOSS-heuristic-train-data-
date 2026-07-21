@@ -70,7 +70,9 @@ if STORAGE_BACKEND == "supabase":
         st.error("Evaluator PIN configuration is invalid.")
         st.stop()
     pin = st.sidebar.text_input("평가자 PIN", type="password")
-    if annotator not in evaluator_pins or not hmac.compare_digest(str(pin or ""), str(evaluator_pins[annotator])):
+    expected_pin = str(evaluator_pins.get(annotator, "")).encode("utf-8")
+    entered_pin = str(pin or "").encode("utf-8")
+    if not expected_pin or not hmac.compare_digest(entered_pin, expected_pin):
         st.info("평가자 PIN을 입력해 주세요.")
         st.stop()
 progress = repo.progress(annotator)
