@@ -1,7 +1,5 @@
 """Local virtual-scenario labeling UI for a fixed MUMUT run."""
 from pathlib import Path
-import hmac
-import json
 import math
 import os
 import streamlit as st
@@ -10,6 +8,7 @@ from src.supabase_repository import SupabaseLabelRepository
 
 RUN_DIR = Path("data/runs") / os.getenv("MUMUT_RUN_ID", "run_004")
 STORAGE_BACKEND = os.getenv("MUMUT_STORAGE", "sqlite").lower()
+EVALUATORS = {"A01": "박현우", "A02": "이석훈", "A03": "노유정"}
 
 
 def secret_value(name: str) -> str | None:
@@ -61,23 +60,10 @@ st.markdown("""
 st.title("MUMUT 가상 시나리오 평가")
 st.caption("실제 방문이 아닌 가상 상황입니다. 아래 정보를 보고 이 점포를 추천할지 판단해 주세요.")
 
-annotator = st.sidebar.selectbox("평가자", ["A01", "A02", "A03"])
-if STORAGE_BACKEND == "supabase":
-    pins_json = secret_value("MUMUT_EVALUATOR_PINS")
-    try:
-        evaluator_pins = json.loads(pins_json or "{}")
-    except json.JSONDecodeError:
-        st.error("Evaluator PIN configuration is invalid.")
-        st.stop()
-    pin = st.sidebar.text_input("평가자 PIN", type="password")
-    expected_pin = str(evaluator_pins.get(annotator, "")).encode("utf-8")
-    entered_pin = str(pin or "").encode("utf-8")
-    if not expected_pin or not hmac.compare_digest(entered_pin, expected_pin):
-        st.info("평가자 PIN을 입력해 주세요.")
-        st.stop()
+annotator = st.sidebar.selectbox("평가자", list(EVALUATORS), format_func=lambda code: EVALUATORS[code])
 progress = repo.progress(annotator)
 st.progress(progress["completed"] / progress["total"])
-st.write(f"**{annotator}** · {progress['completed']} / {progress['total']} 완료 · {progress['remaining']}건 남음")
+st.write(f"**{EVALUATORS[annotator]}** · {progress['completed']} / {progress['total']} 완료 · {progress['remaining']}건 남음")
 
 assignment = repo.next_assignment(annotator)
 if assignment is None:
