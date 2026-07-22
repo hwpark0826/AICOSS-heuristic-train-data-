@@ -6,20 +6,11 @@ import json
 import pandas as pd
 
 from .master_loader import file_sha256, load_master
+from .opening_hours import opening_status
 from .scenario_generator import assign_balanced, generate_scenarios
 from .scenario_distribution import draw_distribution_policy, finalize_binary_weights
 from .snapshot import create_master_snapshot
 from .mvp_selection import select_mvp_stores
-
-
-def _opening_status(hours: pd.DataFrame, store_id: str, day: str, at_time: str) -> str:
-    row = hours[(hours.store_id == store_id) & (hours.day_of_week == day)]
-    if row.empty or pd.isna(row.iloc[0].open_time) or pd.isna(row.iloc[0].close_time):
-        return "UNKNOWN"
-    value = row.iloc[0]
-    if value.is_closed == "Y":
-        return "CLOSED"
-    return "OPEN" if str(value.open_time) <= at_time <= str(value.close_time) else "CLOSED"
 
 
 def build_run(source_master: Path, runs_dir: Path, run_id: str, assignment_count: int = 900, seed: int = 42, mvp_store_count: int | None = None) -> Path:
@@ -38,7 +29,7 @@ def build_run(source_master: Path, runs_dir: Path, run_id: str, assignment_count
     shown = shown.merge(route, left_on=["origin_store_id", "shown_store_id"], right_on=["origin_store_id", "destination_store_id"], validate="many_to_one")
     shown = shown.merge(store, left_on="shown_store_id", right_on="store_id", suffixes=("", "_store"), validate="many_to_one")
     hours = master.tables["STORE_HOUR"]
-    shown["opening_status"] = shown.apply(lambda row: _opening_status(hours, row.shown_store_id, row.day_of_week, row.visit_time), axis=1)
+    shown["opening_status"] = shown.apply(lambda row: opening_status(hours, row.shown_store_id, row.day_of_week, row.visit_time), axis=1)
     shown["parking_status"] = shown["parking_available"].fillna("UNKNOWN")
     shown["price_status"] = shown["representative_price_krw"].notna().map({True: "KNOWN", False: "UNKNOWN"})
     shown["atmosphere_display"] = shown["atmosphere"].fillna("UNKNOWN")

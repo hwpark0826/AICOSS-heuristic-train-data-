@@ -4,6 +4,7 @@ from __future__ import annotations
 from random import Random
 import pandas as pd
 
+from .opening_hours import opening_status
 from .scenario_distribution import draw_distribution_policy, finalize_binary_weights
 
 ANNOTATORS = ("A01", "A02", "A03")
@@ -39,12 +40,8 @@ def generate_scenarios(origins: pd.DataFrame, count: int = 900, seed: int = 42, 
 
 
 def _definitely_open(hours: pd.DataFrame, store_id: str, day: str, at_time: str) -> bool:
-    row = hours[(hours.store_id == store_id) & (hours.day_of_week == day)]
-    if row.empty or pd.isna(row.iloc[0].open_time) or pd.isna(row.iloc[0].close_time):
-        return True
-    value = row.iloc[0]
-    if value.is_closed == "Y": return False
-    return str(value.open_time) <= at_time <= str(value.close_time)
+    # UNKNOWN is not a hard filter. Only objectively closed stores are excluded.
+    return opening_status(hours, store_id, day, at_time) != "CLOSED"
 
 
 def assign_balanced(master_tables: dict[str, pd.DataFrame], scenarios: pd.DataFrame, seed: int = 42, candidate_store_ids: set[str] | None = None) -> pd.DataFrame:
