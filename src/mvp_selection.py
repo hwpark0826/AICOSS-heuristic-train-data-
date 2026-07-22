@@ -1,16 +1,22 @@
 """Objective, reproducible MVP store selection from changing master data."""
 from __future__ import annotations
-from collections import defaultdict
 import pandas as pd
 
 
 EXCLUDED_MVP_CATEGORY_SUBS = {"미용실", "네일샵"}
+# These stores are explicitly outside the MVP business scope even though their
+# category remains eligible for other future selections.
+EXCLUDED_MVP_STORE_IDS = {"S0038", "S0058"}
 
 
 def select_mvp_stores(tables: dict[str, pd.DataFrame], target_count: int = 30) -> pd.DataFrame:
     stores = tables["STORE"].copy()
     known_hours = tables["STORE_HOUR"].dropna(subset=["open_time", "close_time"]).groupby("store_id").size()
-    stores = stores[(stores.active_yn == "Y") & (~stores.category_sub.isin(EXCLUDED_MVP_CATEGORY_SUBS))].copy()
+    stores = stores[
+        (stores.active_yn == "Y")
+        & (~stores.category_sub.isin(EXCLUDED_MVP_CATEGORY_SUBS))
+        & (~stores.store_id.isin(EXCLUDED_MVP_STORE_IDS))
+    ].copy()
     stores["known_hours_days"] = stores.store_id.map(known_hours).fillna(0).astype(int)
     stores["information_completeness"] = stores[["representative_item", "representative_price_krw", "atmosphere", "phone"]].notna().sum(axis=1) + stores.known_hours_days.gt(0).astype(int)
     groups = sorted(stores.category_group.unique())
@@ -27,5 +33,5 @@ def select_mvp_stores(tables: dict[str, pd.DataFrame], target_count: int = 30) -
             for main in sorted(buckets):
                 if buckets[main] and len([idx for idx in selected if stores.loc[idx, "category_group"] == group]) < quotas[group]: selected.append(buckets[main].pop(0))
     result = stores.loc[selected].copy()
-    result["selection_reason"] = "active store; excluded MVP category_sub; balanced category group; objective information completeness"
+    result["selection_reason"] = "active store; excluded MVP category/store; balanced category group; objective information completeness"
     return result.sort_values("store_id")
