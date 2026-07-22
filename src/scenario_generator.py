@@ -44,6 +44,14 @@ def _definitely_open(hours: pd.DataFrame, store_id: str, day: str, at_time: str)
     return opening_status(hours, store_id, day, at_time) != "CLOSED"
 
 
+def _route_meets_hard_constraints(route: pd.Series, scenario: pd.Series) -> bool:
+    if scenario.hill_preference == "AVOID" and str(route.get("slope_level", "")).upper() == "STEEP":
+        return False
+    maximum_walking_minutes = {"UNDER_60": 60, "FROM_60_TO_120": 120}.get(scenario.available_time_code)
+    walking_minutes = pd.to_numeric(route.get("estimated_walking_time_min"), errors="coerce")
+    return maximum_walking_minutes is None or pd.isna(walking_minutes) or walking_minutes <= maximum_walking_minutes
+
+
 def assign_balanced(master_tables: dict[str, pd.DataFrame], scenarios: pd.DataFrame, seed: int = 42, candidate_store_ids: set[str] | None = None) -> pd.DataFrame:
     stores, origins, routes, hours = (master_tables[x] for x in ("STORE", "ORIGIN", "ROUTE_MATRIX", "STORE_HOUR"))
     active = stores[stores.active_yn == "Y"].set_index("store_id")
@@ -55,7 +63,9 @@ def assign_balanced(master_tables: dict[str, pd.DataFrame], scenarios: pd.DataFr
             if store_id == origin_store or not _definitely_open(hours, store_id, scenario.day_of_week, scenario.visit_time): continue
             if scenario.parking_preference == "REQUIRED" and store.get("parking_available") == "N": continue
             if scenario.budget_code == "FREE" and store.category_group == "F&B" and pd.notna(store.get("representative_price_krw")) and store.representative_price_krw > 0: continue
-            if ((routes.origin_store_id == origin_store) & (routes.destination_store_id == store_id)).any(): candidates.append(store_id)
+            route_rows = routes[(routes.origin_store_id == origin_store) & (routes.destination_store_id == store_id)]
+            if route_rows.empty or not _route_meets_hard_constraints(route_rows.iloc[0], scenario): continue
+            candidates.append(store_id)
         if not candidates: raise ValueError(f"No objectively eligible store for {scenario.scenario_id}")
         minimum = min(exposure[x] for x in candidates); chosen = rng.choice([x for x in candidates if exposure[x] == minimum]); exposure[chosen] += 1
         rows.append({"assignment_id": f"ASN-{index + 1:04d}", "scenario_id": scenario.scenario_id, "annotator_id": ANNOTATORS[index % len(ANNOTATORS)], "shown_store_id": chosen, "assignment_policy": "BALANCED_RANDOM"})

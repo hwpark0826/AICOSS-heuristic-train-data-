@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from .label_repository import OUTCOMES, REJECTION_REASONS
+from .label_repository import validate_label_payload
 
 
 class SupabaseLabelRepository:
@@ -38,14 +38,9 @@ class SupabaseLabelRepository:
                 return {"assignment_id": row["assignment_id"], "scenario_id": row["scenario_id"], "shown_store_id": row["shown_store_id"], "snapshot": row["snapshot"]}
         return None
 
-    def submit_label(self, assignment_id: str, annotator_id: str, outcome: str, reject_reason_code: str | None = None) -> None:
-        if outcome not in OUTCOMES:
-            raise ValueError("Invalid outcome")
-        if outcome == "ACCEPTED" and reject_reason_code is not None:
-            raise ValueError("ACCEPTED must not have a rejection reason")
-        if outcome == "REJECTED" and reject_reason_code not in REJECTION_REASONS:
-            raise ValueError("REJECTED needs an allowed rejection reason")
+    def submit_label(self, assignment_id: str, annotator_id: str, outcome: str, reject_reason_code: str | None = None, mismatch_detail_code: str | None = None) -> None:
+        validate_label_payload(outcome, reject_reason_code, mismatch_detail_code)
         try:
-            self.client.rpc("submit_label", {"p_assignment_id": assignment_id, "p_annotator_id": annotator_id, "p_outcome": outcome, "p_reject_reason_code": reject_reason_code}).execute()
+            self.client.rpc("submit_label", {"p_assignment_id": assignment_id, "p_annotator_id": annotator_id, "p_outcome": outcome, "p_reject_reason_code": reject_reason_code, "p_mismatch_detail_code": mismatch_detail_code}).execute()
         except Exception as error:
             raise ValueError(str(error)) from error

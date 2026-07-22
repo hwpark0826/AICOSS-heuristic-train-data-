@@ -8,7 +8,7 @@ import streamlit as st
 from src.label_repository import LabelRepository
 from src.supabase_repository import SupabaseLabelRepository
 
-RUN_DIR = Path("data/runs") / os.getenv("MUMUT_RUN_ID", "run_004")
+RUN_DIR = Path("data/runs") / os.getenv("MUMUT_RUN_ID", "run_006")
 STORAGE_BACKEND = os.getenv("MUMUT_STORAGE", "sqlite").lower()
 EVALUATORS = {"A01": "\ubc15\ud604\uc6b0", "A02": "\uc774\uc11d\ud6c8", "A03": "\ub178\uc720\uc815"}
 
@@ -23,11 +23,19 @@ AGE_LABELS = {"TEENS": "10\ub300", "20S": "20\ub300", "30S": "30\ub300", "40S": 
 GENDER_LABELS = {"MALE": "\ub0a8\uc131", "FEMALE": "\uc5ec\uc131"}
 OUTCOME_LABELS = {"\ucd94\ucc9c\ud574\uc694": "ACCEPTED", "\ucd94\ucc9c\ud558\uc9c0 \uc54a\uc544\uc694": "REJECTED"}
 REASON_LABELS = {
-    "\uc815\ubcf4\uac00 \ubd80\uc871\ud574 \ud310\ub2e8\ud558\uae30 \uc5b4\ub824\uc6cc\uc694": "INFO_INSUFFICIENT",
-    "\uc6d0\ud558\ub294 \ud65c\ub3d9\uc774\ub098 \ubd84\uc704\uae30\uc640 \ub9de\uc9c0 \uc54a\uc544\uc694": "MISMATCH",
-    "\uc8fc\ucc28\ud558\uae30 \ubd88\ud3b8\ud560 \uac83 \uac19\uc544\uc694": "PARKING_TIGHT",
-    "\uac00\uaca9\uc774 \ubd80\ub2f4\ub418\uc5b4\uc694": "PRICE_BURDEN",
-    "\uc774\ub3d9 \uac70\ub9ac\uac00 \uba40\uac8c \ub290\uaef4\uc838\uc694": "TOO_FAR",
+    "\uac70\ub9ac\uac00 \uba40\uc5b4\uc694": "TOO_FAR",
+    "\uac00\uaca9\uc774 \ubd80\ub2f4\ub3fc\uc694": "PRICE_BURDEN",
+    "\uc120\ud0dd\ud55c \uc870\uac74\uacfc \ub2ec\ub77c\uc694": "MISMATCH",
+    "\ud654\uba74\uc5d0 \uc81c\uacf5\ub41c \uc815\ubcf4\uac00 \ubd80\uc871\ud574\uc694": "INFO_INSUFFICIENT",
+    "\uc774\uacf3\uc740 \ub04c\ub9ac\uc9c0 \uc54a\uc544\uc694": "LOW_APPEAL",
+}
+MISMATCH_DETAIL_LABELS = {
+    "\ubaa9\uc801\uc774 \ub2ec\ub77c\uc694": "PURPOSE_MISMATCH",
+    "\ubd84\uc704\uae30\uac00 \ub2ec\ub77c\uc694": "ATMOSPHERE_MISMATCH",
+    "\ub3d9\ud589\u00b7\uc5f0\ub839 \uc870\uac74\uacfc \uc5b4\uc6b8\ub9ac\uc9c0 \uc54a\uc544\uc694": "PROFILE_MISMATCH",
+    "\uacbd\uc0ac\uac00 \ubd80\ub2f4\ub3fc\uc694": "HILL_MISMATCH",
+    "\uc8fc\ucc28 \uc870\uac74\uacfc \ub2ec\ub77c\uc694": "PARKING_MISMATCH",
+    "\uae30\ud0c0 \uc870\uac74\uacfc \ub2ec\ub77c\uc694": "OTHER_CONDITION_MISMATCH",
 }
 
 
@@ -124,20 +132,26 @@ with st.container(border=True):
     with st.form(key=f"decision:{assignment['assignment_id']}", clear_on_submit=True):
         outcome_label = st.radio("\uc774 \uc810\ud3ec\ub97c \ucd94\ucc9c\ud560\uae4c\uc694?", list(OUTCOME_LABELS), index=None, horizontal=True)
         reason_label = st.radio("\ucd94\ucc9c\ud558\uc9c0 \uc54a\uc744 \uacbd\uc6b0\uc5d0\ub9cc \uc774\uc720\ub97c \ud558\ub098 \uace0\ub974\uc138\uc694. \ucd94\ucc9c\ud560 \uacbd\uc6b0 \ube44\uc6cc \ub450\uc138\uc694.", list(REASON_LABELS), index=None)
+        mismatch_detail_label = st.radio("'선택한 조건과 달라요'를 골랐을 때만, 어떤 조건인지 하나 고르세요.", list(MISMATCH_DETAIL_LABELS), index=None)
         submitted = st.form_submit_button("\uc81c\ucd9c\ud558\uace0 \ub2e4\uc74c \uac74 \ubcf4\uae30", use_container_width=True)
 
 if submitted:
     outcome = OUTCOME_LABELS.get(outcome_label)
     reason = REASON_LABELS.get(reason_label)
+    mismatch_detail = MISMATCH_DETAIL_LABELS.get(mismatch_detail_label)
     if outcome is None:
         st.warning("\ucd94\ucc9c \uc5ec\ubd80\ub97c \uba3c\uc800 \uc120\ud0dd\ud574 \uc8fc\uc138\uc694.")
     elif outcome == "REJECTED" and reason is None:
         st.warning("\uac70\uc808 \uc774\uc720\ub97c \ud558\ub098 \uc120\ud0dd\ud574 \uc8fc\uc138\uc694.")
-    elif outcome == "ACCEPTED" and reason is not None:
-        st.warning("\ucd94\ucc9c\ud560 \uacbd\uc6b0\uc5d0\ub294 \uac70\uc808 \uc774\uc720\ub97c \ube44\uc6cc \ub450\uc138\uc694.")
+    elif outcome == "REJECTED" and reason == "MISMATCH" and mismatch_detail is None:
+        st.warning("\uc120\ud0dd\ud55c \uc870\uac74 \uc911 \uc5b4\ub5a4 \uc810\uc774 \ub2ec\ub790\ub294\uc9c0 \uc120\ud0dd\ud574 \uc8fc\uc138\uc694.")
+    elif outcome == "REJECTED" and reason != "MISMATCH" and mismatch_detail is not None:
+        st.warning("\uc138\ubd80 \uc870\uac74\uc740 '선택한 조건과 달라요'를 고른 경우에만 선택해 주세요.")
+    elif outcome == "ACCEPTED" and (reason is not None or mismatch_detail is not None):
+        st.warning("\ucd94\ucc9c\ud560 \uacbd\uc6b0\uc5d0\ub294 \uac70\uc808 \uc774\uc720\uc640 \uc138\ubd80 \uc870\uac74\uc744 \ube44\uc6cc \ub450\uc138\uc694.")
     else:
         try:
-            repo.submit_label(assignment["assignment_id"], annotator, outcome, reason)
+            repo.submit_label(assignment["assignment_id"], annotator, outcome, reason, mismatch_detail)
         except ValueError as error:
             st.error(str(error))
         else:

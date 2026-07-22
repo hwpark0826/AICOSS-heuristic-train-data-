@@ -37,7 +37,7 @@ def upload(run_dir: Path, url: str, service_role_key: str) -> None:
 
 
 if __name__ == "__main__":
-    run_id = os.environ.get("MUMUT_RUN_ID", "run_004")
+    run_id = os.environ["MUMUT_RUN_ID"]
     url = os.environ["SUPABASE_URL"]
     service_role_key = os.environ["SUPABASE_SERVICE_ROLE_KEY"]
     upload(Path("data/runs") / run_id, url, service_role_key)

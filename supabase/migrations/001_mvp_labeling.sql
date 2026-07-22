@@ -22,9 +22,16 @@ create table if not exists public.labels (
   assignment_id text primary key references public.assignments(assignment_id),
   outcome text not null check (outcome in ('ACCEPTED', 'REJECTED')),
   reject_reason_code text,
+  mismatch_detail_code text,
   status text not null default 'COMPLETED' check (status in ('COMPLETED', 'INVALIDATED')),
   labeled_at timestamptz not null default now(),
-  check ((outcome = 'ACCEPTED' and reject_reason_code is null) or (outcome = 'REJECTED' and reject_reason_code in ('TOO_FAR', 'PRICE_BURDEN', 'MISMATCH', 'INFO_INSUFFICIENT', 'PARKING_TIGHT')))
+  check (
+    (outcome = 'ACCEPTED' and reject_reason_code is null and mismatch_detail_code is null)
+    or (outcome = 'REJECTED' and (
+      (reject_reason_code = 'MISMATCH' and mismatch_detail_code in ('PURPOSE_MISMATCH', 'ATMOSPHERE_MISMATCH', 'PROFILE_MISMATCH', 'HILL_MISMATCH', 'PARKING_MISMATCH', 'OTHER_CONDITION_MISMATCH'))
+      or (reject_reason_code in ('TOO_FAR', 'PRICE_BURDEN', 'INFO_INSUFFICIENT', 'LOW_APPEAL') and mismatch_detail_code is null)
+    ))
+  )
 );
 
 create table if not exists public.label_events (
@@ -39,7 +46,8 @@ create or replace function public.submit_label(
   p_assignment_id text,
   p_annotator_id text,
   p_outcome text,
-  p_reject_reason_code text default null
+  p_reject_reason_code text default null,
+  p_mismatch_detail_code text default null
 ) returns void
 language plpgsql
 security definer
@@ -53,10 +61,12 @@ begin
   if v_annotator_id <> p_annotator_id then raise exception 'Assignment belongs to a different annotator'; end if;
   if exists (select 1 from labels where assignment_id = p_assignment_id) then raise exception 'Assignment already labeled'; end if;
   if p_outcome not in ('ACCEPTED', 'REJECTED') then raise exception 'Invalid outcome'; end if;
-  if p_outcome = 'ACCEPTED' and p_reject_reason_code is not null then raise exception 'ACCEPTED must not have a rejection reason'; end if;
-  if p_outcome = 'REJECTED' and p_reject_reason_code not in ('TOO_FAR', 'PRICE_BURDEN', 'MISMATCH', 'INFO_INSUFFICIENT', 'PARKING_TIGHT') then raise exception 'REJECTED needs an allowed rejection reason'; end if;
-  insert into labels (assignment_id, outcome, reject_reason_code) values (p_assignment_id, p_outcome, p_reject_reason_code);
-  insert into label_events (assignment_id, event_type, event_data) values (p_assignment_id, 'LABEL_SUBMITTED', jsonb_build_object('outcome', p_outcome, 'reject_reason_code', p_reject_reason_code));
+  if p_outcome = 'ACCEPTED' and (p_reject_reason_code is not null or p_mismatch_detail_code is not null) then raise exception 'ACCEPTED must not have rejection details'; end if;
+  if p_outcome = 'REJECTED' and p_reject_reason_code not in ('TOO_FAR', 'PRICE_BURDEN', 'MISMATCH', 'INFO_INSUFFICIENT', 'LOW_APPEAL') then raise exception 'REJECTED needs an allowed rejection reason'; end if;
+  if p_reject_reason_code = 'MISMATCH' and p_mismatch_detail_code not in ('PURPOSE_MISMATCH', 'ATMOSPHERE_MISMATCH', 'PROFILE_MISMATCH', 'HILL_MISMATCH', 'PARKING_MISMATCH', 'OTHER_CONDITION_MISMATCH') then raise exception 'MISMATCH needs an allowed condition detail'; end if;
+  if p_reject_reason_code <> 'MISMATCH' and p_mismatch_detail_code is not null then raise exception 'Only MISMATCH may have a condition detail'; end if;
+  insert into labels (assignment_id, outcome, reject_reason_code, mismatch_detail_code) values (p_assignment_id, p_outcome, p_reject_reason_code, p_mismatch_detail_code);
+  insert into label_events (assignment_id, event_type, event_data) values (p_assignment_id, 'LABEL_SUBMITTED', jsonb_build_object('outcome', p_outcome, 'reject_reason_code', p_reject_reason_code, 'mismatch_detail_code', p_mismatch_detail_code));
 end;
 $$;
 

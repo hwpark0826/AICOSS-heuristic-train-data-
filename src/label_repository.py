@@ -9,11 +9,32 @@ import sqlite3
 import pandas as pd
 
 OUTCOMES = {"ACCEPTED", "REJECTED"}
-REJECTION_REASONS = {"TOO_FAR", "PRICE_BURDEN", "MISMATCH", "INFO_INSUFFICIENT", "PARKING_TIGHT"}
+REJECTION_REASONS = {"TOO_FAR", "PRICE_BURDEN", "MISMATCH", "INFO_INSUFFICIENT", "LOW_APPEAL"}
+MISMATCH_DETAIL_REASONS = {
+    "PURPOSE_MISMATCH",
+    "ATMOSPHERE_MISMATCH",
+    "PROFILE_MISMATCH",
+    "HILL_MISMATCH",
+    "PARKING_MISMATCH",
+    "OTHER_CONDITION_MISMATCH",
+}
 
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
+
+
+def validate_label_payload(outcome: str, reject_reason_code: str | None, mismatch_detail_code: str | None = None) -> None:
+    if outcome not in OUTCOMES:
+        raise ValueError("Invalid outcome")
+    if outcome == "ACCEPTED" and (reject_reason_code is not None or mismatch_detail_code is not None):
+        raise ValueError("ACCEPTED must not have rejection details")
+    if outcome == "REJECTED" and reject_reason_code not in REJECTION_REASONS:
+        raise ValueError("REJECTED needs an allowed rejection reason")
+    if reject_reason_code == "MISMATCH" and mismatch_detail_code not in MISMATCH_DETAIL_REASONS:
+        raise ValueError("MISMATCH needs an allowed condition detail")
+    if reject_reason_code != "MISMATCH" and mismatch_detail_code is not None:
+        raise ValueError("Only MISMATCH may have a condition detail")
 
 
 class LabelRepository:
@@ -34,7 +55,7 @@ class LabelRepository:
             con.executescript("""
                 CREATE TABLE IF NOT EXISTS runs (run_id TEXT PRIMARY KEY, master_sha256 TEXT NOT NULL, created_at TEXT NOT NULL);
                 CREATE TABLE IF NOT EXISTS assignments (assignment_id TEXT PRIMARY KEY, run_id TEXT NOT NULL REFERENCES runs(run_id), scenario_id TEXT NOT NULL, annotator_id TEXT NOT NULL, shown_store_id TEXT NOT NULL, snapshot_json TEXT NOT NULL);
-                CREATE TABLE IF NOT EXISTS labels (assignment_id TEXT PRIMARY KEY REFERENCES assignments(assignment_id), outcome TEXT NOT NULL CHECK(outcome IN ('ACCEPTED','REJECTED')), reject_reason_code TEXT, status TEXT NOT NULL DEFAULT 'COMPLETED' CHECK(status IN ('COMPLETED','INVALIDATED')), labeled_at TEXT NOT NULL, CHECK((outcome='ACCEPTED' AND reject_reason_code IS NULL) OR (outcome='REJECTED' AND reject_reason_code IS NOT NULL)));
+                CREATE TABLE IF NOT EXISTS labels (assignment_id TEXT PRIMARY KEY REFERENCES assignments(assignment_id), outcome TEXT NOT NULL CHECK(outcome IN ('ACCEPTED','REJECTED')), reject_reason_code TEXT, mismatch_detail_code TEXT, status TEXT NOT NULL DEFAULT 'COMPLETED' CHECK(status IN ('COMPLETED','INVALIDATED')), labeled_at TEXT NOT NULL, CHECK((outcome='ACCEPTED' AND reject_reason_code IS NULL AND mismatch_detail_code IS NULL) OR (outcome='REJECTED' AND ((reject_reason_code='MISMATCH' AND mismatch_detail_code IN ('PURPOSE_MISMATCH','ATMOSPHERE_MISMATCH','PROFILE_MISMATCH','HILL_MISMATCH','PARKING_MISMATCH','OTHER_CONDITION_MISMATCH')) OR (reject_reason_code IN ('TOO_FAR','PRICE_BURDEN','INFO_INSUFFICIENT','LOW_APPEAL') AND mismatch_detail_code IS NULL)))));
                 CREATE TABLE IF NOT EXISTS label_events (event_id INTEGER PRIMARY KEY AUTOINCREMENT, assignment_id TEXT NOT NULL REFERENCES assignments(assignment_id), event_type TEXT NOT NULL, event_data TEXT, created_at TEXT NOT NULL);
             """)
             con.execute("INSERT OR IGNORE INTO runs VALUES (?, ?, ?)", (metadata["run_id"], metadata["master_sha256"], _now()))
@@ -42,17 +63,15 @@ class LabelRepository:
                 snapshot = shown.loc[assignment.assignment_id].dropna().to_dict()
                 con.execute("INSERT OR IGNORE INTO assignments VALUES (?, ?, ?, ?, ?, ?)", (assignment.assignment_id, metadata["run_id"], assignment.scenario_id, assignment.annotator_id, assignment.shown_store_id, json.dumps(snapshot, ensure_ascii=False)))
 
-    def submit_label(self, assignment_id: str, annotator_id: str, outcome: str, reject_reason_code: str | None = None) -> None:
-        if outcome not in OUTCOMES: raise ValueError("Invalid outcome")
-        if outcome == "ACCEPTED" and reject_reason_code is not None: raise ValueError("ACCEPTED must not have a rejection reason")
-        if outcome == "REJECTED" and reject_reason_code not in REJECTION_REASONS: raise ValueError("REJECTED needs an allowed rejection reason")
+    def submit_label(self, assignment_id: str, annotator_id: str, outcome: str, reject_reason_code: str | None = None, mismatch_detail_code: str | None = None) -> None:
+        validate_label_payload(outcome, reject_reason_code, mismatch_detail_code)
         with closing(self.connect()) as con, con:
             assignment = con.execute("SELECT annotator_id FROM assignments WHERE assignment_id=?", (assignment_id,)).fetchone()
             if assignment is None: raise ValueError("Unknown or unexposed assignment")
             if assignment["annotator_id"] != annotator_id: raise ValueError("Assignment belongs to a different annotator")
             if con.execute("SELECT 1 FROM labels WHERE assignment_id=?", (assignment_id,)).fetchone(): raise ValueError("Assignment already labeled")
-            con.execute("INSERT INTO labels VALUES (?, ?, ?, 'COMPLETED', ?)", (assignment_id, outcome, reject_reason_code, _now()))
-            con.execute("INSERT INTO label_events (assignment_id,event_type,event_data,created_at) VALUES (?, 'LABEL_SUBMITTED', ?, ?)", (assignment_id, json.dumps({"outcome": outcome, "reject_reason_code": reject_reason_code}), _now()))
+            con.execute("INSERT INTO labels (assignment_id, outcome, reject_reason_code, mismatch_detail_code, status, labeled_at) VALUES (?, ?, ?, ?, 'COMPLETED', ?)", (assignment_id, outcome, reject_reason_code, mismatch_detail_code, _now()))
+            con.execute("INSERT INTO label_events (assignment_id,event_type,event_data,created_at) VALUES (?, 'LABEL_SUBMITTED', ?, ?)", (assignment_id, json.dumps({"outcome": outcome, "reject_reason_code": reject_reason_code, "mismatch_detail_code": mismatch_detail_code}), _now()))
 
     def progress(self, annotator_id: str) -> dict[str, int]:
         with closing(self.connect()) as con, con:
