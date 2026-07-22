@@ -1,6 +1,6 @@
 from pathlib import Path
 from src.master_loader import find_master_file, load_master
-from src.mvp_selection import EXCLUDED_MVP_CATEGORY_SUBS, EXCLUDED_MVP_STORE_IDS, select_mvp_stores
+from src.mvp_selection import EXCLUDED_MVP_CATEGORY_SUBS, EXCLUDED_MVP_STORE_IDS, MVP_STORE_SUBSTITUTIONS, select_mvp_stores
 
 
 def test_mvp_selection_is_diverse_and_has_requested_size() -> None:
@@ -11,6 +11,9 @@ def test_mvp_selection_is_diverse_and_has_requested_size() -> None:
     assert "미용실" not in set(selected.category_sub)
     assert "네일샵" not in set(selected.category_sub)
     assert not set(selected.store_id).intersection(EXCLUDED_MVP_STORE_IDS)
+    for outgoing_store_id, incoming_store_id in MVP_STORE_SUBSTITUTIONS.items():
+        assert outgoing_store_id not in set(selected.store_id)
+        assert incoming_store_id in set(selected.store_id)
     eligible = master.tables["STORE"].loc[
         ~master.tables["STORE"].category_sub.isin(EXCLUDED_MVP_CATEGORY_SUBS)
         & ~master.tables["STORE"].store_id.isin(EXCLUDED_MVP_STORE_IDS)

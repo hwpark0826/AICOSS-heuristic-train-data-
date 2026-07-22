@@ -7,6 +7,9 @@ EXCLUDED_MVP_CATEGORY_SUBS = {"미용실", "네일샵"}
 # These stores are explicitly outside the MVP business scope even though their
 # category remains eligible for other future selections.
 EXCLUDED_MVP_STORE_IDS = {"S0038", "S0058", "S0060", "S0068"}
+# Keep this explicit business decision separate from automatic category balancing:
+# the renovation-driven removal of S0060 is replaced with a restaurant.
+MVP_STORE_SUBSTITUTIONS = {"S0056": "S0022"}
 
 
 def select_mvp_stores(tables: dict[str, pd.DataFrame], target_count: int = 30) -> pd.DataFrame:
@@ -34,4 +37,13 @@ def select_mvp_stores(tables: dict[str, pd.DataFrame], target_count: int = 30) -
                 if buckets[main] and len([idx for idx in selected if stores.loc[idx, "category_group"] == group]) < quotas[group]: selected.append(buckets[main].pop(0))
     result = stores.loc[selected].copy()
     result["selection_reason"] = "active store; excluded MVP category/store; balanced category group; objective information completeness"
+    for outgoing_store_id, incoming_store_id in MVP_STORE_SUBSTITUTIONS.items():
+        if outgoing_store_id not in set(result.store_id) or incoming_store_id in set(result.store_id):
+            continue
+        incoming = stores.loc[stores.store_id.eq(incoming_store_id)].copy()
+        if incoming.empty:
+            continue
+        result = result.loc[~result.store_id.eq(outgoing_store_id)]
+        incoming["selection_reason"] = f"manual MVP substitution for {outgoing_store_id}"
+        result = pd.concat([result, incoming], ignore_index=True)
     return result.sort_values("store_id")
