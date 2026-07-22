@@ -6,7 +6,7 @@ import pandas as pd
 EXCLUDED_MVP_CATEGORY_SUBS = {"미용실", "네일샵"}
 # These stores are explicitly outside the MVP business scope even though their
 # category remains eligible for other future selections.
-EXCLUDED_MVP_STORE_IDS = {"S0038", "S0058", "S0068"}
+EXCLUDED_MVP_STORE_IDS = {"S0038", "S0058", "S0060", "S0068"}
 
 
 def select_mvp_stores(tables: dict[str, pd.DataFrame], target_count: int = 30) -> pd.DataFrame:
