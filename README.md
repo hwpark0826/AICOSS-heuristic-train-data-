@@ -33,6 +33,12 @@ The initial MVP uses the reviewed 30-store roster in `config/mvp_store_roster.cs
 
 There is currently no active local run. For a shared deployment, use the Supabase central-storage procedure in `docs/MVP_DEPLOYMENT.md` after creating and uploading a new run.
 
+Create a new run with an explicit ID and seed. Do not reuse an existing run ID.
+
+```bash
+python scripts/create_mvp_run.py --run-id run_005 --seed 44
+```
+
 ## Local labeling screen
 
 Run `python -m streamlit run app.py`, then open `http://localhost:8501`. By default it reads `data/runs/run_004/` and writes to that run's local SQLite database. With `MUMUT_STORAGE=supabase`, it reads and writes the central Supabase database instead.
