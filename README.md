@@ -29,9 +29,9 @@ pytest
 
 ## Current scope
 
-The current MVP is `run_004`: 30 selected stores and 240 virtual assignments, with 80 assignments each for A01/A02/A03. It discovers the single workbook in `data/master/`, reads row 4 headers, validates keys and references without hard-coded store or route counts, and creates immutable run snapshots. Missing factual values remain `UNKNOWN`; they are never converted into negative values.
+The initial MVP uses a reviewed fixed roster of 30 stores and creates 240 virtual assignments, with 80 assignments each for A01/A02/A03. The roster is defined in `src/mvp_selection.py`; if a future master makes one of its stores unavailable, run creation fails instead of silently replacing it. It discovers the single workbook in `data/master/`, reads row 4 headers, validates keys and references without hard-coded store or route counts, and creates immutable run snapshots. Missing factual values remain `UNKNOWN`; they are never converted into negative values.
 
-`data/runs/run_004/labels.sqlite` is the local-development labeling database. For a shared deployment, use the Supabase central-storage procedure in `docs/MVP_DEPLOYMENT.md`.
+There is currently no active local run. For a shared deployment, use the Supabase central-storage procedure in `docs/MVP_DEPLOYMENT.md` after creating and uploading a new run.
 
 ## Local labeling screen
 
