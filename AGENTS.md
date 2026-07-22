@@ -158,9 +158,9 @@ When reject_reason_code is MISMATCH, mismatch_detail_code is required and must b
 
 mismatch_detail_code must be null for every other outcome or rejection reason.
 
-`ATMOSPHERE_MISMATCH` remains valid only for completed historical labels that
-already contain it. New scenarios do not collect an atmosphere preference;
-future atmosphere-related dislike is recorded as `LOW_APPEAL`.
+`ATMOSPHERE_MISMATCH` is a legacy import code and is not offered in the UI.
+The completed human training export reclassifies atmosphere-related dislike as
+`LOW_APPEAL`. New scenarios do not collect an atmosphere preference.
 
 `STORE.atmosphere` remains a factual store feature and is retained in model
 inputs. It is distinct from the removed user preference field.

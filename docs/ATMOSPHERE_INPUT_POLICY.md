@@ -13,9 +13,11 @@ unspoken atmosphere preference.
 
 ## Historical human labels
 
-`run_007` and its 240 completed labels are immutable. Their
-`requested_atmosphere_code` and `ATMOSPHERE_MISMATCH` values remain preserved
-as historical provenance. The binary `outcome` remains eligible for training.
+The 240 human labels remain the source data. By the human label owner's
+decision, the eight `ATMOSPHERE_MISMATCH` rejections in the training export are
+reclassified as `LOW_APPEAL`; their binary `REJECTED` outcome is unchanged.
+`requested_atmosphere_code` remains in the export only as provenance and is
+excluded from model inputs.
 
 ## Future runs and UI
 
