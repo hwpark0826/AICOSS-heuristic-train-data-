@@ -1,0 +1,35 @@
+{
+  "version": "v1-no-requested-atmosphere",
+  "target_column": "outcome",
+  "scenario_feature_columns": [
+    "day_of_week",
+    "visit_time",
+    "companion_type",
+    "gender_code",
+    "age_group",
+    "available_time_code",
+    "budget_code",
+    "purpose_code",
+    "hill_preference",
+    "parking_preference"
+  ],
+  "store_feature_columns": [
+    "category_group",
+    "category_main",
+    "category_sub",
+    "representative_price_krw",
+    "store_atmosphere",
+    "parking_available",
+    "estimated_walking_distance_m",
+    "estimated_walking_time_min",
+    "slope_level",
+    "opening_status"
+  ],
+  "excluded_columns": [
+    "requested_atmosphere_code"
+  ],
+  "notes": {
+    "store_atmosphere": "Factual store attribute retained as a model feature.",
+    "requested_atmosphere_code": "Removed from the user experience and excluded from model inputs. Historical exports may retain it for provenance only."
+  }
+}

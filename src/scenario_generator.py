@@ -35,7 +35,7 @@ def generate_scenarios(origins: pd.DataFrame, count: int = 900, seed: int = 42, 
         gender = rng.choice(["MALE", "FEMALE"]) if companion == "ALONE" else None
         age = rng.choice(["TEENS", "20S", "30S", "40S", "50S", "60_PLUS"]) if companion != "FAMILY" else None
         purpose = _weighted_choice(rng, policy["purpose_code"])
-        rows.append({"scenario_id": f"SCN-{number:04d}", "origin_id": rng.choice(origins.origin_id.tolist()), "day_of_week": _day_of_week(rng, policy["weekday_share"]), "visit_time": _visit_time(rng, policy["time_bucket"]), "companion_type": companion, "gender_code": gender, "age_group": age, "available_time_code": _weighted_choice(rng, policy["available_time_code"]), "budget_code": _weighted_choice(rng, policy["budget_by_purpose"][purpose]), "purpose_code": purpose, "atmosphere_code": _weighted_choice(rng, policy["atmosphere_code"]), "hill_preference": _weighted_choice(rng, policy["hill_preference"]), "parking_preference": _weighted_choice(rng, policy["parking_preference"])})
+        rows.append({"scenario_id": f"SCN-{number:04d}", "origin_id": rng.choice(origins.origin_id.tolist()), "day_of_week": _day_of_week(rng, policy["weekday_share"]), "visit_time": _visit_time(rng, policy["time_bucket"]), "companion_type": companion, "gender_code": gender, "age_group": age, "available_time_code": _weighted_choice(rng, policy["available_time_code"]), "budget_code": _weighted_choice(rng, policy["budget_by_purpose"][purpose]), "purpose_code": purpose, "hill_preference": _weighted_choice(rng, policy["hill_preference"]), "parking_preference": _weighted_choice(rng, policy["parking_preference"])})
     return pd.DataFrame(rows)
 
 

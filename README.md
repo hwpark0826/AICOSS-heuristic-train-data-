@@ -29,6 +29,8 @@ pytest
 
 ## Current scope
 
+The completed human-label export is stored at `data/training/heuristic selection data.csv`. It keeps the factual `store_atmosphere` feature, while future scenario generation and model inputs exclude the removed user `requested_atmosphere_code` preference.
+
 The initial MVP uses the reviewed 30-store roster in `config/mvp_store_roster.csv` and creates 240 virtual assignments, with 80 assignments each for A01/A02/A03. `store_id` is the runtime key; `store_name` is only for human review. If a future master makes an enabled roster store unavailable, run creation fails instead of silently replacing it. It discovers the single workbook in `data/master/`, reads row 4 headers, validates keys and references without hard-coded store or route counts, and creates immutable run snapshots. Missing factual values remain `UNKNOWN`; they are never converted into negative values.
 
 The active local MVP run is `run_007` (5차 master, seed 46). For a shared deployment, use the Supabase central-storage procedure in `docs/MVP_DEPLOYMENT.md` after uploading this run.

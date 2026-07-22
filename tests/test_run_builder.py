@@ -14,3 +14,5 @@ def test_run_has_snapshot_and_900_balanced_assignments() -> None:
         assert len(assignments) == len(shown) == 90
         assert assignments.annotator_id.value_counts().to_dict() == {"A01": 30, "A02": 30, "A03": 30}
         assert set(shown.opening_status) <= {"OPEN", "UNKNOWN"}
+        assert "atmosphere_code" not in shown.columns
+        assert "atmosphere" in shown.columns

@@ -67,7 +67,6 @@ The virtual scenario contains:
 - available_time_code
 - budget_code
 - purpose_code
-- atmosphere_code
 - hill_preference
 - parking_preference
 
@@ -111,11 +110,6 @@ purpose_code:
 - EXPERIENCE
 - NO_PREFERENCE
 
-atmosphere_code:
-- QUIET
-- LIVELY
-- NO_PREFERENCE
-
 hill_preference:
 - AVOID
 - NO_PREFERENCE
@@ -157,13 +151,19 @@ reject_reason_code must be null when outcome is ACCEPTED.
 When reject_reason_code is MISMATCH, mismatch_detail_code is required and must be one of:
 
 - PURPOSE_MISMATCH
-- ATMOSPHERE_MISMATCH
 - PROFILE_MISMATCH
 - HILL_MISMATCH
 - PARKING_MISMATCH
 - OTHER_CONDITION_MISMATCH
 
 mismatch_detail_code must be null for every other outcome or rejection reason.
+
+`ATMOSPHERE_MISMATCH` remains valid only for completed historical labels that
+already contain it. New scenarios do not collect an atmosphere preference;
+future atmosphere-related dislike is recorded as `LOW_APPEAL`.
+
+`STORE.atmosphere` remains a factual store feature and is retained in model
+inputs. It is distinct from the removed user preference field.
 
 A store that was not exposed must not be recorded as REJECTED.
 Unexposed stores remain missing and do not create training rows.

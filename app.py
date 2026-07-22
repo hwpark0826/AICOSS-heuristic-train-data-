@@ -15,7 +15,6 @@ EVALUATORS = {"A01": "\ubc15\ud604\uc6b0", "A02": "\uc774\uc11d\ud6c8", "A03": "
 TIME_LABELS = {"UNDER_60": "1\uc2dc\uac04 \uc774\ud558", "FROM_60_TO_120": "1~2\uc2dc\uac04", "OVER_120": "2\uc2dc\uac04 \ucd08\uacfc", "NO_PREFERENCE": "\uc2dc\uac04 \uc81c\ud55c \uc5c6\uc74c"}
 BUDGET_LABELS = {"FREE": "\ubb34\ub8cc", "UNDER_10000": "1\ub9cc \uc6d0 \uc774\ud558", "UNDER_30000": "3\ub9cc \uc6d0 \uc774\ud558", "UNDER_50000": "5\ub9cc \uc6d0 \uc774\ud558", "NO_PREFERENCE": "\uc608\uc0b0 \uc81c\ud55c \uc5c6\uc74c"}
 PURPOSE_LABELS = {"EAT": "\uc2dd\uc0ac", "REST": "\uc26c\uae30", "BROWSE": "\uad6c\uacbd", "EXPERIENCE": "\uc0c8\ub85c\uc6b4 \uacbd\ud5d8", "NO_PREFERENCE": "\ub2e4\uc74c \ud65c\ub3d9 \uc815\ud558\uc9c0 \uc54a\uc74c"}
-ATMOSPHERE_LABELS = {"QUIET": "\uc870\uc6a9\ud568", "LIVELY": "\ud65c\uae30\ucc38", "NO_PREFERENCE": "\ubd84\uc704\uae30 \uc0c1\uad00\uc5c6\uc74c"}
 HILL_LABELS = {"AVOID": "\uc624\ub974\ub9c9\uc740 \ud53c\ud558\uace0 \uc2f6\uc74c", "NO_PREFERENCE": "\uacbd\uc0ac \uc0c1\uad00\uc5c6\uc74c"}
 PARKING_LABELS = {"REQUIRED": "\uc8fc\ucc28\uac00 \uaf2d \ud544\uc694\ud568", "NO_PREFERENCE": "\uc8fc\ucc28 \uc0c1\uad00\uc5c6\uc74c"}
 COMPANION_LABELS = {"FAMILY": "\uac00\uc871\uacfc", "COUPLE": "\uc5f0\uc778\u00b7\ubc30\uc6b0\uc790\uc640", "FRIENDS": "\uce5c\uad6c\ub4e4\uacfc", "ALONE": "\ud63c\uc790"}
@@ -31,7 +30,6 @@ REASON_LABELS = {
 }
 MISMATCH_DETAIL_LABELS = {
     "\ubaa9\uc801\uc774 \ub2ec\ub77c\uc694": "PURPOSE_MISMATCH",
-    "\ubd84\uc704\uae30\uac00 \ub2ec\ub77c\uc694": "ATMOSPHERE_MISMATCH",
     "\ub3d9\ud589\u00b7\uc5f0\ub839 \uc870\uac74\uacfc \uc5b4\uc6b8\ub9ac\uc9c0 \uc54a\uc544\uc694": "PROFILE_MISMATCH",
     "\uacbd\uc0ac\uac00 \ubd80\ub2f4\ub3fc\uc694": "HILL_MISMATCH",
     "\uc8fc\ucc28 \uc870\uac74\uacfc \ub2ec\ub77c\uc694": "PARKING_MISMATCH",
@@ -109,7 +107,6 @@ with st.container(border=True):
     left.write(f"\u23f1\ufe0f \ub0a8\uc740 \uc2dc\uac04: **{TIME_LABELS.get(display(data.get('available_time_code')), 'UNKNOWN')}**")
     right.write(f"\U0001F4B3 \uc608\uc0b0: **{BUDGET_LABELS.get(display(data.get('budget_code')), 'UNKNOWN')}**")
     left.write(f"\U0001F3AF \ub2e4\uc74c \ud65c\ub3d9: **{PURPOSE_LABELS.get(display(data.get('purpose_code')), 'UNKNOWN')}**")
-    right.write(f"\U0001F33F \uc6d0\ud558\ub294 \ubd84\uc704\uae30: **{ATMOSPHERE_LABELS.get(display(data.get('atmosphere_code')), 'UNKNOWN')}**")
     left.write(f"\U0001FAA8 \uc774\ub3d9 \uc870\uac74: **{HILL_LABELS.get(display(data.get('hill_preference')), 'UNKNOWN')}**")
     right.write(f"\U0001F697 \uc8fc\ucc28 \uc870\uac74: **{PARKING_LABELS.get(display(data.get('parking_preference')), 'UNKNOWN')}**")
 

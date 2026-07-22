@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from random import Random
 
-POLICY_VERSION = "v1"
+POLICY_VERSION = "v2"
 
 
 def _bounded_weights(rng: Random, bounds: dict[str, tuple[float, float]]) -> dict[str, float]:
@@ -35,9 +35,6 @@ def draw_distribution_policy(seed: int) -> dict[str, object]:
         "version": POLICY_VERSION,
         "parking_preference": {"REQUIRED": rng.uniform(0.10, 0.20), "NO_PREFERENCE": None},
         "hill_preference": {"AVOID": rng.uniform(0.15, 0.35), "NO_PREFERENCE": None},
-        "atmosphere_code": _bounded_weights(rng, {
-            "QUIET": (0.25, 0.40), "LIVELY": (0.20, 0.35), "NO_PREFERENCE": (0.25, 0.40),
-        }),
         "companion_type": _bounded_weights(rng, {
             "FAMILY": (0.15, 0.35), "COUPLE": (0.15, 0.35), "FRIENDS": (0.15, 0.35), "ALONE": (0.15, 0.35),
         }),

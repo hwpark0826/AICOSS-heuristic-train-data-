@@ -1,4 +1,5 @@
 from pathlib import Path
+import json
 
 from src.master_loader import find_master_file, load_master
 from src.scenario_distribution import draw_distribution_policy, finalize_binary_weights
@@ -11,7 +12,7 @@ def test_distribution_policy_is_reproducible_and_bounded() -> None:
     assert first == second
     assert 0.10 <= first["parking_preference"]["REQUIRED"] <= 0.20
     assert 0.15 <= first["hill_preference"]["AVOID"] <= 0.35
-    assert abs(sum(first["atmosphere_code"].values()) - 1) < 1e-12
+    assert "atmosphere_code" not in first
 
 
 def test_scenarios_follow_conditional_budget_and_demographics() -> None:
@@ -23,3 +24,11 @@ def test_scenarios_follow_conditional_budget_and_demographics() -> None:
     assert scenarios.loc[scenarios.companion_type != "FAMILY", "age_group"].notna().all()
     assert scenarios.loc[scenarios.companion_type == "ALONE", "gender_code"].notna().all()
     assert scenarios.loc[scenarios.companion_type != "ALONE", "gender_code"].isna().all()
+    assert "atmosphere_code" not in scenarios.columns
+
+
+def test_model_feature_contract_keeps_store_atmosphere_but_excludes_user_preference() -> None:
+    features = json.loads(Path("config/recommendation_model_features.json").read_text(encoding="utf-8"))
+    assert "store_atmosphere" in features["store_feature_columns"]
+    assert "requested_atmosphere_code" in features["excluded_columns"]
+    assert "requested_atmosphere_code" not in features["scenario_feature_columns"]
