@@ -29,7 +29,7 @@ pytest
 
 ## Current scope
 
-The initial MVP uses a reviewed fixed roster of 30 stores and creates 240 virtual assignments, with 80 assignments each for A01/A02/A03. The roster is defined in `src/mvp_selection.py`; if a future master makes one of its stores unavailable, run creation fails instead of silently replacing it. It discovers the single workbook in `data/master/`, reads row 4 headers, validates keys and references without hard-coded store or route counts, and creates immutable run snapshots. Missing factual values remain `UNKNOWN`; they are never converted into negative values.
+The initial MVP uses the reviewed 30-store roster in `config/mvp_store_roster.csv` and creates 240 virtual assignments, with 80 assignments each for A01/A02/A03. `store_id` is the runtime key; `store_name` is only for human review. If a future master makes an enabled roster store unavailable, run creation fails instead of silently replacing it. It discovers the single workbook in `data/master/`, reads row 4 headers, validates keys and references without hard-coded store or route counts, and creates immutable run snapshots. Missing factual values remain `UNKNOWN`; they are never converted into negative values.
 
 There is currently no active local run. For a shared deployment, use the Supabase central-storage procedure in `docs/MVP_DEPLOYMENT.md` after creating and uploading a new run.
 
