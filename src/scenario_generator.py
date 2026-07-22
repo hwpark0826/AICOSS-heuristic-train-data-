@@ -52,6 +52,12 @@ def _route_meets_hard_constraints(route: pd.Series, scenario: pd.Series) -> bool
     return maximum_walking_minutes is None or pd.isna(walking_minutes) or walking_minutes <= maximum_walking_minutes
 
 
+def _store_meets_hard_constraints(store: pd.Series, scenario: pd.Series) -> bool:
+    # Eating is the only purpose with an unambiguous category boundary. Other
+    # purposes remain available for human preference learning.
+    return scenario.purpose_code != "EAT" or store.category_group == "F&B"
+
+
 def assign_balanced(master_tables: dict[str, pd.DataFrame], scenarios: pd.DataFrame, seed: int = 42, candidate_store_ids: set[str] | None = None) -> pd.DataFrame:
     stores, origins, routes, hours = (master_tables[x] for x in ("STORE", "ORIGIN", "ROUTE_MATRIX", "STORE_HOUR"))
     active = stores[stores.active_yn == "Y"].set_index("store_id")
@@ -61,6 +67,7 @@ def assign_balanced(master_tables: dict[str, pd.DataFrame], scenarios: pd.DataFr
         origin_store = origin_stores[scenario.origin_id]; candidates = []
         for store_id, store in active.iterrows():
             if store_id == origin_store or not _definitely_open(hours, store_id, scenario.day_of_week, scenario.visit_time): continue
+            if not _store_meets_hard_constraints(store, scenario): continue
             if scenario.parking_preference == "REQUIRED" and store.get("parking_available") == "N": continue
             if scenario.budget_code == "FREE" and store.category_group == "F&B" and pd.notna(store.get("representative_price_krw")) and store.representative_price_krw > 0: continue
             route_rows = routes[(routes.origin_store_id == origin_store) & (routes.destination_store_id == store_id)]

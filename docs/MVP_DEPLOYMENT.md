@@ -65,6 +65,7 @@ SUPABASE_SERVICE_ROLE_KEY = "YOUR_SERVICE_ROLE_KEY"
 - 팀원은 화면에서 자신의 이름을 선택한다. 신뢰된 내부 팀 MVP이므로 별도 로그인은 사용하지 않는다.
 - 제출된 라벨은 중앙 DB의 `labels`와 `label_events`에 동시에 기록된다.
 - 거절 사유는 `TOO_FAR`, `PRICE_BURDEN`, `MISMATCH`, `INFO_INSUFFICIENT`, `LOW_APPEAL`이다. `MISMATCH`인 경우에만 `mismatch_detail_code`가 함께 저장된다.
+- 하드 필터는 비활성·동일 출발/도착·경로 없음·확실한 휴무/영업 종료·주차 필수 위반·무료 조건의 유료 F&B·가파른 경사 회피 위반·명백한 도보시간 초과·`EAT` 목적의 비-F&B 점포를 제외한다.
 - 같은 assignment는 DB 제약과 `submit_label` 함수 때문에 두 번 저장되지 않는다.
 - 완료된 라벨을 수정하지 않는다. 중대한 오류는 삭제 대신 `INVALIDATED` 처리한다.
 - 새 run은 로컬에서 생성·검증 후 별도 `run_id`로 업로드한다. 시작된 run의 시나리오, master snapshot, seed, 표시값은 바꾸지 않는다.
