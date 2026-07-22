@@ -150,9 +150,20 @@ Allowed rejection reasons:
 - PRICE_BURDEN
 - MISMATCH
 - INFO_INSUFFICIENT
-- PARKING_TIGHT
+- LOW_APPEAL
 
 reject_reason_code must be null when outcome is ACCEPTED.
+
+When reject_reason_code is MISMATCH, mismatch_detail_code is required and must be one of:
+
+- PURPOSE_MISMATCH
+- ATMOSPHERE_MISMATCH
+- PROFILE_MISMATCH
+- HILL_MISMATCH
+- PARKING_MISMATCH
+- OTHER_CONDITION_MISMATCH
+
+mismatch_detail_code must be null for every other outcome or rejection reason.
 
 A store that was not exposed must not be recorded as REJECTED.
 Unexposed stores remain missing and do not create training rows.

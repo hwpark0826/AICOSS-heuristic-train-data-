@@ -98,7 +98,7 @@
 5. 가격은 대표 항목 1개에 대한 정수 원화일 뿐, 가격대·변동가격·서비스 가격의 의미를 표준화하지 않는다. 45점포는 가격이 없다.
 6. 대표 설명 컬럼은 없고 `representative_item`만 있으며 41점포가 결측이다. 평가 화면의 설명 품질은 보장할 수 없다.
 7. ROUTE_MATRIX는 안내 시트에 따라 직선거리×1.25 및 75m/분으로 만든 MVP 추정치이며 실제 길찾기 결과가 아니다. 경사도 역시 추정치다. 0m 경로 60건과 경사 결측 54건의 처리 정책이 필요하다.
-8. REASON_CODE의 “19개” 안내 수치와 실제 16개 사유 + 2개 트리거 구조가 다르다. 첨부 AGENTS가 라벨 거절 사유로 허용한 5개(`TOO_FAR`, `PRICE_BURDEN`, `MISMATCH`, `INFO_INSUFFICIENT`, `PARKING_TIGHT`)는 실제 16개 사유 코드에 모두 존재한다.
+8. REASON_CODE의 “19개” 안내 수치와 실제 16개 사유 + 2개 트리거 구조가 다르다. MVP 라벨 정책은 마스터의 운영 사유 코드와 분리해 `TOO_FAR`, `PRICE_BURDEN`, `MISMATCH`, `INFO_INSUFFICIENT`, `LOW_APPEAL` 5개를 쓴다. `MISMATCH`일 때는 목적·분위기·프로필·경사·주차·기타의 세부 코드를 함께 저장한다.
 9. 첨부 AGENTS의 가상 시나리오 필드(`scenario_visit_at`, companion/gender/age 등)는 실제 REQUEST_SCHEMA의 컬럼 집합과 일치하지 않는다. 이는 가상 평가용 새 스키마를 만들라는 의도로 해석할 수 있으나, 기존 운영 요청과의 관계는 명시적으로 결정해야 한다.
 
 ## 학습데이터 구축 가능성
