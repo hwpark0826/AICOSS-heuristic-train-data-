@@ -12,7 +12,7 @@
 
 - Streamlit은 화면에서 평가자를 선택하고 판단을 수집한다.
 - Supabase는 run, assignment, 화면 표시 스냅샷, label, 감사 이벤트의 중앙 저장소다.
-- `data/runs/run_006`의 SQLite는 로컬 개발용이며, 배포 후 원본 저장소가 아니다.
+- `data/runs/run_007`의 SQLite는 로컬 개발용이며, 배포 후 원본 저장소가 아니다.
 
 ## 1. Supabase 설정
 
@@ -23,20 +23,20 @@
    - `service_role` key
 4. `service_role` key는 Streamlit 서버의 Secrets에만 둔다. 브라우저·Git·채팅에 공유하지 않는다.
 
-## 2. run_006 업로드
+## 2. run_007 업로드
 
 로컬 PowerShell에서 아래 환경 변수를 일시적으로 설정하고 실행한다.
 
 ```powershell
 $env:SUPABASE_URL = 'https://YOUR_PROJECT.supabase.co'
 $env:SUPABASE_SERVICE_ROLE_KEY = 'YOUR_SERVICE_ROLE_KEY'
-$env:MUMUT_RUN_ID = 'run_006'
+$env:MUMUT_RUN_ID = 'run_007'
 python scripts/upload_run_to_supabase.py
 ```
 
 업로드가 끝나면 Supabase Table Editor에서 다음을 확인한다.
 
-- `runs`: 1행 (`run_006`)
+- `runs`: 1행 (`run_007`)
 - `assignments`: 240행
 - 평가자별 assignment: A01/A02/A03 각 80행
 - `labels`: 0행
@@ -52,7 +52,7 @@ python scripts/upload_run_to_supabase.py
 
 ```toml
 MUMUT_STORAGE = "supabase"
-MUMUT_RUN_ID = "run_006"
+MUMUT_RUN_ID = "run_007"
 SUPABASE_URL = "https://YOUR_PROJECT.supabase.co"
 SUPABASE_SERVICE_ROLE_KEY = "YOUR_SERVICE_ROLE_KEY"
 ```
@@ -75,7 +75,7 @@ SUPABASE_SERVICE_ROLE_KEY = "YOUR_SERVICE_ROLE_KEY"
 - [ ] `requirements.txt`에 `supabase`가 포함되어 있다.
 - [ ] Supabase migration 실행 완료
 - [ ] `002_label_reason_v2.sql` 실행 완료(기존 Supabase 프로젝트)
-- [ ] `run_006` 240건 업로드 완료
+- [ ] `run_007` 240건 업로드 완료
 - [ ] Streamlit Secrets 설정 완료
 - [ ] 박현우(A01)로 1건 제출 테스트
 - [ ] Supabase `labels`와 `label_events`에서 1건 확인

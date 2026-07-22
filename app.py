@@ -8,7 +8,7 @@ import streamlit as st
 from src.label_repository import LabelRepository
 from src.supabase_repository import SupabaseLabelRepository
 
-RUN_DIR = Path("data/runs") / os.getenv("MUMUT_RUN_ID", "run_006")
+RUN_DIR = Path("data/runs") / os.getenv("MUMUT_RUN_ID", "run_007")
 STORAGE_BACKEND = os.getenv("MUMUT_STORAGE", "sqlite").lower()
 EVALUATORS = {"A01": "\ubc15\ud604\uc6b0", "A02": "\uc774\uc11d\ud6c8", "A03": "\ub178\uc720\uc815"}
 
