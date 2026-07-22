@@ -26,7 +26,7 @@ REASON_LABELS = {
     "\uac70\ub9ac\uac00 \uba40\uc5b4\uc694": "TOO_FAR",
     "\uac00\uaca9\uc774 \ubd80\ub2f4\ub3fc\uc694": "PRICE_BURDEN",
     "\uc120\ud0dd\ud55c \uc870\uac74\uacfc \ub2ec\ub77c\uc694": "MISMATCH",
-    "\ud654\uba74\uc5d0 \uc81c\uacf5\ub41c \uc815\ubcf4\uac00 \ubd80\uc871\ud574\uc694": "INFO_INSUFFICIENT",
+    "\ud310\ub2e8\ud560 \uc815\ubcf4\uac00 \ubd80\uc871\ud574\uc694": "INFO_INSUFFICIENT",
     "\uc774\uacf3\uc740 \ub04c\ub9ac\uc9c0 \uc54a\uc544\uc694": "LOW_APPEAL",
 }
 MISMATCH_DETAIL_LABELS = {
@@ -132,6 +132,7 @@ with st.container(border=True):
     with st.form(key=f"decision:{assignment['assignment_id']}", clear_on_submit=True):
         outcome_label = st.radio("\uc774 \uc810\ud3ec\ub97c \ucd94\ucc9c\ud560\uae4c\uc694?", list(OUTCOME_LABELS), index=None, horizontal=True)
         reason_label = st.radio("\ucd94\ucc9c\ud558\uc9c0 \uc54a\uc744 \uacbd\uc6b0\uc5d0\ub9cc \uc774\uc720\ub97c \ud558\ub098 \uace0\ub974\uc138\uc694. \ucd94\ucc9c\ud560 \uacbd\uc6b0 \ube44\uc6cc \ub450\uc138\uc694.", list(REASON_LABELS), index=None)
+        st.caption("‘\ud310\ub2e8\ud560 \uc815\ubcf4\uac00 \ubd80\uc871\ud574\uc694’\ub294 \ud654\uba74 \ub610\ub294 \ub124\uc774\ubc84\uc9c0\ub3c4\uc5d0\uc11c \uba54\ub274·\uac00\uaca9·\uc0ac\uc9c4·\ub9ac\ubdf0·\uc601\uc5c5·\uc8fc\ucc28 \ub4f1 \ud310\ub2e8\uc5d0 \ud544\uc694\ud55c \uc815\ubcf4\ub97c \ucda9\ubd84\ud788 \ud655\uc778\ud560 \uc218 \uc5c6\uc744 \ub54c\ub9cc \uc120\ud0dd\ud574 \uc8fc\uc138\uc694. \ub2e8\uc21c\ud788 \ub9c8\uc74c\uc5d0 \ub4e4\uc9c0 \uc54a\ub294 \uacbd\uc6b0\uc5d0\ub294 ‘\uc774\uacf3\uc740 \ub04c\ub9ac\uc9c0 \uc54a\uc544\uc694’\ub97c \uc120\ud0dd\ud574 \uc8fc\uc138\uc694.")
         mismatch_detail_label = st.radio("'선택한 조건과 달라요'를 골랐을 때만, 어떤 조건인지 하나 고르세요.", list(MISMATCH_DETAIL_LABELS), index=None)
         submitted = st.form_submit_button("\uc81c\ucd9c\ud558\uace0 \ub2e4\uc74c \uac74 \ubcf4\uae30", use_container_width=True)
 
